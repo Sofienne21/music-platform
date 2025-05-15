@@ -1,7 +1,5 @@
 package com.mystream.musicapp.service;
 
-import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 
 import com.mystream.musicapp.model.MusicTrack;
@@ -19,7 +17,7 @@ public class MusicTrackService {
         return musicTrackRepository.save(track);
     }
 
-    public Optional<MusicTrack> getTrackById(String id) {
-        return musicTrackRepository.findById(id);
+    public MusicTrack getTrackById(String id) {
+        return musicTrackRepository.findById(id).orElse(null);
     }
 }

@@ -22,16 +22,23 @@ public class FavoriteService {
 
     public Favorite addFavorite(Long userId, MusicTrack track) {
         Users user = usersRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found..."));
+            .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvable..."));
 
-        musicTrackRepository.findById(track.getId()).orElseGet(() -> musicTrackRepository.save(track));
+        MusicTrack existingTrack = musicTrackRepository.findById(track.getId())
+                    .orElseGet(() -> musicTrackRepository.save(track));
 
         Favorite favorite = Favorite.builder()
             .user(user)
-            .track(track)
+            .track(existingTrack)
             .build();
 
-        return favoriteRepository.save(favorite);
+        Favorite saved = favoriteRepository.save(favorite);
+
+        if(saved == null) {
+            throw new IllegalStateException("Erreur lors de la sauvgarde du favori");
+        }
+
+        return saved;
     }
 
     public List<Favorite> getFavoritesByUser(Long userId) {

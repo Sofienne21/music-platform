@@ -29,7 +29,7 @@ public class MusicTrackController {
     }
     
     @GetMapping("/{id}")
-    public Optional<MusicTrack> getTrackById(@PathVariable String id) {
+    public MusicTrack getTrackById(@PathVariable String id) {
         return musicTrackService.getTrackById(id);
     }
 }
