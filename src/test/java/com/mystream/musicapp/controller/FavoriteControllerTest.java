@@ -52,12 +52,45 @@ public class FavoriteControllerTest {
             .source("YOUTUBE")
             .build();
             
-        mockMvc.perform(post("/api/favorites/1")
+        mockMvc.perform(post("/api/favorites/"+userId)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(track)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.track.id").value("YT123"))
                 .andExpect(jsonPath("$.user.id").value(userId.intValue()));
     }
+
+    @Test
+    void shouldReturnFavoritesForUser() throws Exception {
+        // 1. Créer un utilisateur
+        Users user = Users.builder()
+            .name("Sofienne")
+            .email("sofienne@example.com")
+            .build();
+        user = usersRepository.save(user);
+
+        // 2. Créer un morceau
+        MusicTrack track = MusicTrack.builder()
+            .id("YT123")
+            .title("Test Song")
+            .artist("Test Artist")
+            .source("YOUTUBE")
+            .build();
+
+        // 3. Appeler l’API pour l’ajouter comme favori
+        mockMvc.perform(post("/api/favorites/" + user.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(track)))
+            .andExpect(status().isOk());
+
+        // 4. Appeler l’API GET pour récupérer les favoris
+        mockMvc.perform(
+                org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                    .get("/api/favorites/" + user.getId()))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].track.id").value("YT123"))
+            .andExpect(jsonPath("$[0].user.id").value(user.getId().intValue()));
+    }
+
 
 }
