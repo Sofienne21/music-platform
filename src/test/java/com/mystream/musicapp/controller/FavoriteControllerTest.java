@@ -13,6 +13,8 @@ import com.mystream.musicapp.model.MusicTrack;
 import com.mystream.musicapp.model.Users;
 import com.mystream.musicapp.repository.UsersRepository;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -91,6 +93,39 @@ public class FavoriteControllerTest {
             .andExpect(jsonPath("$[0].track.id").value("YT123"))
             .andExpect(jsonPath("$[0].user.id").value(user.getId().intValue()));
     }
+
+    @Test
+    void shouldDeleteFavoriteSuccessfully() throws Exception {
+        // 1. Ajouter un favori
+        MusicTrack track = MusicTrack.builder()
+            .id("YT456")
+            .title("To Delete")
+            .artist("Delete Artist")
+            .source("YOUTUBE")
+            .build();
+
+        // POST pour ajouter
+        String response = mockMvc.perform(post("/api/favorites/" + userId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(track)))
+            .andExpect(status().isOk())
+            .andReturn()
+            .getResponse()
+            .getContentAsString();
+
+        // 2. Récupérer l'ID du favori depuis la réponse JSON
+        Long favoriteId = objectMapper.readTree(response).get("id").asLong();
+
+        // 3. Supprimer le favori
+        mockMvc.perform(delete("/api/favorites/" + favoriteId))
+            .andExpect(status().isOk());
+
+        // 4. Vérifier qu’il n’apparaît plus
+        mockMvc.perform(get("/api/favorites/" + userId))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isEmpty());
+    }
+
 
 
 }
