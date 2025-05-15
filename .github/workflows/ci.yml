@@ -55,7 +55,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=sofienne21
-            -Dsonar.organization=Sofienne21
+            -Dsonar.organization=sofienne21
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
